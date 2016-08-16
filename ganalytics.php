@@ -197,6 +197,22 @@ class Ganalytics extends Module
 						),
 					),
 				),
+				array(
+					'type' => 'text',
+					'label' => $this->l('Additional Google Analytics Tracking Name'),
+					'name' => 'GA_ACCOUNT_ADD_NAME',
+					'size' => 20,
+					'required' => false,
+					'hint' => $this->l('This information is available in your Google Analytics account')
+				),
+				array(
+					'type' => 'text',
+					'label' => $this->l('Additional Google Analytics Tracking ID'),
+					'name' => 'GA_ACCOUNT_ADD_ID',
+					'size' => 20,
+					'required' => false,
+					'hint' => $this->l('This information is available in your Google Analytics account')
+				),
 			),
 			'submit' => array(
 				'title' => $this->l('Save'),
@@ -205,6 +221,8 @@ class Ganalytics extends Module
 
 		// Load current value
 		$helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
+		$helper->fields_value['GA_ACCOUNT_ADD_NAME'] = Configuration::get('GA_ACCOUNT_ADD_NAME');
+		$helper->fields_value['GA_ACCOUNT_ADD_ID'] = Configuration::get('GA_ACCOUNT_ADD_ID');
 		$helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
 
 		return $helper->generateForm($fields_form);
@@ -219,11 +237,23 @@ class Ganalytics extends Module
 		if (Tools::isSubmit('submit'.$this->name))
 		{
 			$ga_account_id = Tools::getValue('GA_ACCOUNT_ID');
+			$ga_add_account_name = Tools::getValue('GA_ACCOUNT_ADD_NAME');
+			$ga_add_account_id = Tools::getValue('GA_ACCOUNT_ADD_ID');
 			if (!empty($ga_account_id))
 			{
 				Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
 				Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
 				$output .= $this->displayConfirmation($this->l('Account ID updated successfully'));
+			}
+			if (!empty($ga_add_account_name))
+			{
+				Configuration::updateValue('GA_ACCOUNT_ADD_NAME', $ga_add_account_name);
+				$output .= $this->displayConfirmation($this->l('Additional Account ID updated successfully'));
+			}
+			if (!empty($ga_add_account_id))
+			{
+				Configuration::updateValue('GA_ACCOUNT_ADD_ID', $ga_add_account_id);
+				$output .= $this->displayConfirmation($this->l('Additional Account ID updated successfully'));
 			}
 			$ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
 			if (null !== $ga_userid_enabled)
@@ -254,6 +284,9 @@ class Ganalytics extends Module
 		){
 			$user_id = (int)$this->context->customer->id;
 		}
+		
+		$ga_uname=Configuration::get('GA_ACCOUNT_ADD_NAME');
+		$ga_uid=Configuration::get('GA_ACCOUNT_ADD_ID');
 
 		return '
 			<script type="text/javascript">
@@ -263,9 +296,11 @@ class Ganalytics extends Module
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 				})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');
 				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
+				'.(($ga_uname && $ga_uid) ? 'ga(\'create\', \''.Tools::safeOutput($ga_uid).'\', \''.Tools::safeOutput($ga_uname).'\');': '').'
 				ga(\'require\', \'ec\');'
 				.(($user_id && !$back_office) ? 'ga(\'set\', \'&uid\', \''.$user_id.'\');': '')
-				.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
+				.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '').'
+				'.(($ga_uname && $ga_uid) ? 'ga(\''.Tools::safeOutput($ga_uname).'.send\', \'pageview\');' : '')
 			.'</script>';
 	}
 
