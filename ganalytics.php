@@ -296,7 +296,7 @@ class Ganalytics extends Module
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 				})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');
 				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
-				'.(($ga_uname && $ga_uid) ? 'ga(\'create\', \''.Tools::safeOutput($ga_uid).'\', \''.Tools::safeOutput($ga_uname).'\');': '').'
+				'.(($ga_uname && $ga_uid) ? 'ga(\'create\', \''.Tools::safeOutput($ga_uid).'\',\'auto\', \''.Tools::safeOutput($ga_uname).'\');': '').'
 				ga(\'require\', \'ec\');'
 				.(($user_id && !$back_office) ? 'ga(\'set\', \'&uid\', \''.$user_id.'\');': '')
 				.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '').'
